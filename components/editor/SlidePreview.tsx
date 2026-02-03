@@ -5,11 +5,10 @@ import { ChevronRight, Heart } from 'lucide-react'
 interface SlidePreviewProps {
   slide: Slide
   settings: GlobalSettings
-  slideNumber: number
-  totalSlides: number
+  language?: 'uk' | 'en'
 }
 
-function parseText(text: string): React.ReactNode[] {
+function parseText(text: string, accentColor: string): React.ReactNode[] {
   const regex = /\*(.*?)\*/g
   const parts: React.ReactNode[] = []
   let lastIndex = 0
@@ -20,7 +19,7 @@ function parseText(text: string): React.ReactNode[] {
       parts.push(text.slice(lastIndex, match.index))
     }
     parts.push(
-      <strong key={match.index} style={{ color: settings.accentColor }}>
+      <strong key={match.index} style={{ color: accentColor }}>
         {match[1]}
       </strong>
     )
@@ -34,8 +33,8 @@ function parseText(text: string): React.ReactNode[] {
   return parts
 }
 
-export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
-  ({ slide, settings, slideNumber, totalSlides }, ref) => {
+const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
+  ({ slide, settings, language = 'uk' }, ref) => {
     const aspectRatios = {
       portrait: 'aspect-[4/5]',
       square: 'aspect-square',
@@ -43,43 +42,29 @@ export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
     }
 
     const fontFamilies: Record<string, string> = {
-      Inter: 'font-inter',
-      Merriweather: 'font-serif',
-      Montserrat: 'font-montserrat',
-      'Bebas Neue': 'font-bebas',
-      Unbounded: 'font-unbounded',
+      Inter: 'font-sans',
+      Roboto: 'font-sans',
+      Montserrat: 'font-sans',
+      'Playfair Display': 'font-serif',
     }
 
     return (
       <div
         ref={ref}
-        className={`relative ${aspectRatios[settings.aspectRatio]} w-full overflow-hidden rounded-lg`}
+        className={`relative ${aspectRatios[settings.aspectRatio]} w-full overflow-hidden rounded-lg shadow-xl`}
         style={{
-          fontFamily: fontFamilies[settings.fontTheme] || 'font-inter',
+          backgroundColor: settings.bgColor,
+          fontFamily: settings.fontFamily,
         }}
       >
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${settings.backgroundImage})`,
-          }}
-        />
-
-        {/* Overlay */}
-        <div
-          className="absolute inset-0 bg-black"
-          style={{ opacity: settings.overlayOpacity / 100 }}
-        />
-
         {/* Content */}
         <div
-          className={`relative h-full flex flex-col justify-between p-8 ${fontFamilies[settings.fontTheme]}`}
+          className={`relative h-full flex flex-col justify-between p-8 ${fontFamilies[settings.fontFamily] || 'font-sans'}`}
           style={{ color: settings.textColor }}
         >
           {/* Top Section - Handle */}
           {settings.handle && (
-            <div className="text-sm opacity-80">{settings.handle}</div>
+            <div className="text-sm opacity-80 font-medium">{settings.handle}</div>
           )}
 
           {/* Middle Section - Title & Body */}
@@ -92,7 +77,7 @@ export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
                   lineHeight: 1.2,
                 }}
               >
-                {parseText(slide.title)}
+                {parseText(slide.title, settings.accentColor)}
               </h2>
             )}
             {slide.body && (
@@ -103,31 +88,31 @@ export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
                   lineHeight: 1.6,
                 }}
               >
-                {parseText(slide.body)}
+                {parseText(slide.body, settings.accentColor)}
               </p>
             )}
 
             {/* CTA for last slide */}
             {slide.isCta && (
-              <div className="flex gap-4 mt-4">
+              <div className="flex gap-4 mt-6">
                 <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-transform hover:scale-105"
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-all hover:scale-105 font-semibold"
                   style={{
                     borderColor: settings.accentColor,
                     color: settings.accentColor,
                   }}
                 >
                   <Heart className="w-5 h-5" />
-                  <span className="font-semibold">Save</span>
+                  <span>{language === 'uk' ? 'Підписатися' : 'Follow'}</span>
                 </button>
                 <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-transform hover:scale-105"
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg transition-all hover:scale-105 font-semibold"
                   style={{
-                    borderColor: settings.accentColor,
-                    color: settings.accentColor,
+                    backgroundColor: settings.accentColor,
+                    color: settings.bgColor,
                   }}
                 >
-                  <span className="font-semibold">Share</span>
+                  <span>{language === 'uk' ? 'Поділитися' : 'Share'}</span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -135,32 +120,11 @@ export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
           </div>
 
           {/* Bottom Section - Swipe Indicator */}
-          <div className="flex justify-center items-center gap-1">
-            {settings.swipeStyle === 'dots' ? (
-              <>
-                {Array.from({ length: totalSlides }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      i === slideNumber - 1 ? 'w-6' : ''
-                    }`}
-                    style={{
-                      backgroundColor:
-                        i === slideNumber - 1
-                          ? settings.accentColor
-                          : `${settings.textColor}40`,
-                    }}
-                  />
-                ))}
-              </>
-            ) : (
-              <div className="flex items-center gap-2 text-sm">
-                <span style={{ color: settings.accentColor }}>
-                  Swipe
-                </span>
-                <ChevronRight className="w-4 h-4" style={{ color: settings.accentColor }} />
-              </div>
-            )}
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <span className="text-sm font-medium" style={{ color: settings.accentColor }}>
+              {language === 'uk' ? 'Гортай' : 'Swipe'}
+            </span>
+            <ChevronRight className="w-4 h-4" style={{ color: settings.accentColor }} />
           </div>
         </div>
       </div>
@@ -169,3 +133,6 @@ export const SlidePreview = forwardRef<HTMLDivElement, SlidePreviewProps>(
 )
 
 SlidePreview.displayName = 'SlidePreview'
+
+// Default export
+export default SlidePreview
