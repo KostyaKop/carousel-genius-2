@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;800&family=Unbounded:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&display=swap');
 
 @layer base {
   :root {
@@ -16,11 +16,13 @@
   }
 
   * {
-    @apply border-border;
+    box-sizing: border-box;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gray-950 text-white antialiased;
+    margin: 0;
+    padding: 0;
   }
 
   /* Custom Scrollbar */
