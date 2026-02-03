@@ -40,6 +40,12 @@ export const translations = {
       upgrade: 'Upgrade to Pro',
       remaining: 'remaining',
     },
+    // Common
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    delete: 'Delete',
+    edit: 'Edit',
+    create: 'Create',
   },
   uk: {
     // Landing
@@ -80,6 +86,12 @@ export const translations = {
       upgrade: 'Оновити до Pro',
       remaining: 'залишилось',
     },
+    // Common
+    cancel: 'Скасувати',
+    confirm: 'Підтвердити',
+    delete: 'Видалити',
+    edit: 'Редагувати',
+    create: 'Створити',
   },
   ru: {
     // Landing
@@ -120,6 +132,12 @@ export const translations = {
       upgrade: 'Обновить до Pro',
       remaining: 'осталось',
     },
+    // Common
+    cancel: 'Отменить',
+    confirm: 'Подтвердить',
+    delete: 'Удалить',
+    edit: 'Редактировать',
+    create: 'Создать',
   },
 }
 
@@ -132,4 +150,16 @@ export function getTranslation(lang: Language, key: string): string {
   }
   
   return value || key
+}
+
+// Shorthand function for translations
+export function t(key: string, lang: Language): string {
+  // First try to find in flat structure (like 'undo', 'redo', 'cancel')
+  const flatValue = (translations[lang] as any)[key]
+  if (flatValue && typeof flatValue === 'string') {
+    return flatValue
+  }
+  
+  // Then try nested structure (like 'editor.undo')
+  return getTranslation(lang, key)
 }
